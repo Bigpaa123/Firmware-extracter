@@ -3,7 +3,7 @@ name: Inspect Firmware Binaries
 on:
   push:
     paths:
-      - '**/*.bin'
+      - '**.bin'
       - '.github/workflows/**'
 
 jobs:
@@ -14,29 +14,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: List repository files
+      - name: List repo files
         run: ls -la
 
-      - name: Show bootloader binary header
+      - name: Hexdump binaries (First 20 lines)
         run: |
-          echo "Bootloader Binary Header:"
-          hexdump -C CassiesArcade.ino.bootloader.bin | head -n 20
+          hexdump -C CassiesArcade.ino.bootloader.bin | head -n 20 > bootloader_dump.txt
+          hexdump -C CassiesArcade.ino.bin | head -n 20 > firmware_dump.txt
+          hexdump -C CassiesArcade.ino.partitions.bin | head -n 20 > partitions_dump.txt
 
-      - name: Show firmware binary header
-        run: |
-          echo "Firmware Binary Header:"
-          hexdump -C CassiesArcade.ino.bin | head -n 20
+      - name: Upload hexdump inspection files
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-inspection
+          path: |
+            bootloader_dump.txt
+            firmware_dump.txt
+            partitions_dump.txt
 
-      - name: Show partition table binary header
-        run: |
-          echo "Partition Table Binary Header:"
-          hexdump -C CassiesArcade.ino.partitions.bin | head -n 20
-
-      - name: List all binaries sizes
-        run: |
-          echo "Bootloader Size:"
-          stat --format="%s bytes" CassiesArcade.ino.bootloader.bin
-          echo "Firmware Size:"
-          stat --format="%s bytes" CassiesArcade.ino.bin
-          echo "Partition Table Size:"
-          stat --format="%s bytes" CassiesArcade.ino.partitions.bin
+      - name: Upload full binaries
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-binaries
+          path: |
+            CassiesArcade.ino.bootloader.bin
+            CassiesArcade.ino.bin
+            CassiesArcade.ino.partitions.bin
