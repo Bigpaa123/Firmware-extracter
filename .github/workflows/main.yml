@@ -1,0 +1,42 @@
+name: Inspect Firmware Binaries
+
+on:
+  push:
+    paths:
+      - '**/*.bin'
+      - '.github/workflows/**'
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: List repository files
+        run: ls -la
+
+      - name: Show bootloader binary header
+        run: |
+          echo "Bootloader Binary Header:"
+          hexdump -C CassiesArcade.ino.bootloader.bin | head -n 20
+
+      - name: Show firmware binary header
+        run: |
+          echo "Firmware Binary Header:"
+          hexdump -C CassiesArcade.ino.bin | head -n 20
+
+      - name: Show partition table binary header
+        run: |
+          echo "Partition Table Binary Header:"
+          hexdump -C CassiesArcade.ino.partitions.bin | head -n 20
+
+      - name: List all binaries sizes
+        run: |
+          echo "Bootloader Size:"
+          stat --format="%s bytes" CassiesArcade.ino.bootloader.bin
+          echo "Firmware Size:"
+          stat --format="%s bytes" CassiesArcade.ino.bin
+          echo "Partition Table Size:"
+          stat --format="%s bytes" CassiesArcade.ino.partitions.bin
